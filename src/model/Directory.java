@@ -1,8 +1,27 @@
 package model;
 
 import java.io.File;
+import java.util.Arrays;
 
 public class Directory {
+
+    private File directory;
+    private String[] names;
+    private int pIndex;
+
+    public Directory(File directory, String[] names, int pIndex) {
+        this.directory = directory;
+        this.names = Arrays.copyOf(names, names.length);
+        this.pIndex = pIndex;
+    }
+
+    public File getDirectory() {
+        return directory;
+    }
+
+    public void setDirectory(File directory) {
+        this.directory = directory;
+    }
 
     /**
      * Method: renameDirectory(string, string[], int
@@ -13,12 +32,16 @@ public class Directory {
      * @param names       new names of the files
      * @param prefixIndex index after the new names will be inserted
      */
-    public void renameDirectory(String directory, String[] names, int prefixIndex) {
-        File[] files = new File(directory).listFiles();
+    public void renameDirectory(File directory, String[] names, int prefixIndex) {
+        File[] files = directory.listFiles();
         if (files == null) return;
         for (int i = 0; i < names.length && i < files.length; i++) {
             renameFile(files[i], names[i], prefixIndex);
         }
+    }
+
+    public void rename() {
+        renameDirectory(directory, names, pIndex);
     }
 
     /**
@@ -37,6 +60,22 @@ public class Directory {
         String extension = getFileExtension(oldName);
         String newName = directory + "\\" + oldName.substring(0, pi) + " " + name + extension;
         return file.renameTo(new File(newName));
+    }
+
+    public String getName(int index) {
+        return names[index];
+    }
+
+    public void setName(String names, int index) {
+        this.names[index] = names;
+    }
+
+    public int getpIndex() {
+        return pIndex;
+    }
+
+    public void setpIndex(int pIndex) {
+        this.pIndex = pIndex;
     }
 
     /**

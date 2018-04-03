@@ -6,9 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
 
 public class JDirectoryRenamer extends JFrame {
-
     /**
      * Static Method: getScrollPaneFor(component, string)
      * ---------------------
@@ -25,11 +25,12 @@ public class JDirectoryRenamer extends JFrame {
         return scrollPane;
     }
 
+    private JFileChooser chooser;
     private DirectoryRenamer renamer;
     private JTextArea newNamesArea;
-    private JButton directoryButton;
     private IntField indexField;
-    private JLabel fileList;
+    private JPanel fileList;
+    private File chosenDirectory;
 
     /**
      * Constructor: JDirectoryRenamer(renamer)
@@ -46,31 +47,94 @@ public class JDirectoryRenamer extends JFrame {
         pack();
     }
 
+    /**
+     * Method: addComponents
+     * ---------------------
+     * Adds the necessary GUI components to the frame.
+     */
     private void addComponents() {
         JPanel panel = new JPanel(new GridLayout(1, 3, 5, 5));
         addInteractors(panel);
-        addTextAreas(panel);
+        addTextComponents(panel);
         add(panel);
     }
 
-    private void addTextAreas(JPanel panel) {
+    /**
+     * Method: addTextComponents (panel)
+     * -------------------------
+     * Adds the textarea and text display label to the given panel.
+     *
+     * @param panel a panel on which the components will be added
+     */
+    private void addTextComponents(JPanel panel) {
         panel.add(getScrollPaneFor(newNamesArea = new JTextArea(15, 25), "Names"));
-        panel.add(getScrollPaneFor(fileList = new JLabel(""), "File List"));
+        fileList = new JPanel();
+        fileList.setLayout(new BoxLayout(fileList, BoxLayout.Y_AXIS));
+        panel.add(getScrollPaneFor(fileList, "File List"));
     }
 
+
+    /**
+     * Method: addInteractors(panel)
+     * ------------------------
+     * Adds the GUI interactors to the given panel
+     *
+     * @param parent a panel on which the components will be added
+     */
     private void addInteractors(JPanel parent) {
         JPanel grandChild = new JPanel();
         grandChild.setLayout(new BoxLayout(grandChild, BoxLayout.Y_AXIS));
-        grandChild.add(directoryButton = new JButton("Choose a directory"));
+        addDirectoryButton(grandChild);
         indexField = new IntField(0);
         indexField.setBorder(BorderFactory.createTitledBorder("Start Index"));
         grandChild.add(indexField);
-        grandChild.add(new JButton("Rename"));
+        addRenameButton(grandChild);
         JPanel child = new JPanel();
-        child.add(new JLabel(""));
         child.add(grandChild);
         parent.add(child);
     }
+
+    private void addRenameButton(JPanel panel) {
+        JButton renameButton = new JButton("Rename");
+        renameButton.addActionListener(e -> {
+            renamer.rename(chosenDirectory, newNamesArea.getText(), indexField.getValue());
+            displayDirectory(chosenDirectory);
+        });
+        panel.add(renameButton);
+    }
+
+    private void addDirectoryButton(JPanel panel) {
+        JButton directoryButton = new JButton("Choose a directory");
+        chooser = new JFileChooser(System.getProperty("user.desktop"));
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        directoryButton.addActionListener(e -> chooseDirectory());
+        panel.add(directoryButton);
+    }
+
+    /**
+     * Method: chooseDirectory
+     * --------------------
+     * Opens a file chooser dialog and the displays given directory
+     */
+    private void chooseDirectory() {
+        int choice = chooser.showOpenDialog(this);
+        if (choice == JFileChooser.APPROVE_OPTION) {
+            chosenDirectory = chooser.getSelectedFile();
+            displayDirectory(chosenDirectory);
+        }
+    }
+
+    private void displayDirectory(File directory) {
+        File[] files = directory.listFiles();
+        if (files == null) return;
+        fileList.removeAll();
+        for (File file : files) {
+            fileList.add(new JLabel(file.getName()));
+        }
+        fileList.updateUI();
+
+    }
+
 
     private class IntField extends JTextField {
         private final int DEFAULT_VAL;
@@ -85,6 +149,10 @@ public class JDirectoryRenamer extends JFrame {
                         e.setKeyChar((char) 0);
                 }
             });
+        }
+
+        public int getValue() {
+            return this.getText().length() > 0 ? Integer.parseInt(this.getText()) : DEFAULT_VAL;
         }
 
     }

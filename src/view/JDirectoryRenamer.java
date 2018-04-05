@@ -1,12 +1,14 @@
 package view;
 
 import control.DirectoryRenamer;
+import misc.Utils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.URI;
 
 public class JDirectoryRenamer extends JFrame {
     /**
@@ -25,25 +27,31 @@ public class JDirectoryRenamer extends JFrame {
         return scrollPane;
     }
 
+    private Desktop desktop;
     private JFileChooser chooser;
     private DirectoryRenamer renamer;
     private JTextArea newNamesArea;
     private IntField indexField;
     private JPanel fileList;
     private File chosenDirectory;
+    private File script;
 
     /**
      * Constructor: JDirectoryRenamer(renamer)
      * -------------------------
      * Constructs a new Directory Renamer frame for given controller.
      *
+     * @param desktop
      * @param renamer a controller that will be using this frame.
      */
-    public JDirectoryRenamer(DirectoryRenamer renamer) throws HeadlessException {
+    public JDirectoryRenamer(Desktop desktop, DirectoryRenamer renamer) throws HeadlessException {
         super(DirectoryRenamer.APP_NAME);
+        script = renamer.getEpisodeScript();
+        this.desktop = desktop;
         this.renamer = renamer;
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         addComponents();
+        setResizable(false);
         pack();
     }
 
@@ -85,13 +93,34 @@ public class JDirectoryRenamer extends JFrame {
         JPanel grandChild = new JPanel();
         grandChild.setLayout(new BoxLayout(grandChild, BoxLayout.Y_AXIS));
         addDirectoryButton(grandChild);
-        indexField = new IntField(0);
-        indexField.setBorder(BorderFactory.createTitledBorder("Start Index"));
-        grandChild.add(indexField);
+        addIndexField(grandChild);
         addRenameButton(grandChild);
+        addScriptFileButtons(grandChild);
         JPanel child = new JPanel();
         child.add(grandChild);
         parent.add(child);
+    }
+
+    private void addIndexField(JPanel parent) {
+        JPanel child = new JPanel(new FlowLayout());
+        indexField = new IntField(0);
+        child.add(new JLabel("Start index"));
+        child.add(indexField);
+
+        parent.add(child);
+
+    }
+
+    private void addScriptFileButtons(JPanel child) {
+//        JPanel child = new JPanel(new FlowLayout());
+        JButton openFileButton = new JButton("Open episode \nnames script"),
+                openFolderButton = new JButton("Open script folder");
+        openFileButton.addActionListener(e -> Utils.openInDesktop(script.toURI(), desktop));
+        openFolderButton.addActionListener(e -> Utils.openInDesktop(script.getParentFile().toURI(), desktop));
+        child.add(openFileButton);
+        child.add(openFolderButton);
+//        parent.add(child);
+
     }
 
     private void addRenameButton(JPanel panel) {
@@ -126,10 +155,12 @@ public class JDirectoryRenamer extends JFrame {
 
     private void displayDirectory(File directory) {
         File[] files = directory.listFiles();
-        if (files == null) return;
         fileList.removeAll();
+        if (files == null) return;
         for (File file : files) {
-            fileList.add(new JLabel(file.getName()));
+            JLabel txt = new ActionLabel(file.getName(), file.toURI(), desktop);
+
+            fileList.add(txt);
         }
         fileList.updateUI();
 

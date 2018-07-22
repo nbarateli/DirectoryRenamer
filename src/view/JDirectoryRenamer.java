@@ -4,11 +4,12 @@ import control.DirectoryRenamer;
 import misc.Utils;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.net.URI;
 
 public class JDirectoryRenamer extends JFrame {
     /**
@@ -33,8 +34,13 @@ public class JDirectoryRenamer extends JFrame {
     private JTextArea newNamesArea;
     private IntField indexField;
     private JPanel fileList;
+    private JPanel prefixes, custom;
     private File chosenDirectory;
     private File script;
+    private JTextField series;
+    private IntField seasonField;
+    private JPanel grandChild;
+    private boolean usingPrefixes;
 
     /**
      * Constructor: JDirectoryRenamer(renamer)
@@ -90,10 +96,15 @@ public class JDirectoryRenamer extends JFrame {
      * @param parent a panel on which the components will be added
      */
     private void addInteractors(JPanel parent) {
-        JPanel grandChild = new JPanel();
+        grandChild = new JPanel();
         grandChild.setLayout(new BoxLayout(grandChild, BoxLayout.Y_AXIS));
+        prefixes = new JPanel(new FlowLayout());
+        custom = new JPanel();
+        custom.setLayout(new BoxLayout(custom, BoxLayout.Y_AXIS));
         addDirectoryButton(grandChild);
+        addSwitchButtons(grandChild);
         addIndexField(grandChild);
+        addCustomPanel(grandChild);
         addRenameButton(grandChild);
         addScriptFileButtons(grandChild);
         JPanel child = new JPanel();
@@ -101,13 +112,54 @@ public class JDirectoryRenamer extends JFrame {
         parent.add(child);
     }
 
-    private void addIndexField(JPanel parent) {
-        JPanel child = new JPanel(new FlowLayout());
-        indexField = new IntField(0);
-        child.add(new JLabel("Start index"));
-        child.add(indexField);
+    private void addCustomPanel(JPanel grandChild) {
 
-        parent.add(child);
+        this.series = new JTextField();
+        series.setBorder(new TitledBorder("Series"));
+        this.seasonField = new IntField(1);
+
+        custom.add(series);
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel.add(new JLabel("Season no. "));
+        panel.add(seasonField);
+        custom.add(panel);
+//        grandChild.add(custom);
+    }
+
+    private void addSwitchButtons(JPanel panel) {
+        ButtonGroup buttons = new ButtonGroup();
+        JRadioButton prefix = new JRadioButton("Existing prefixes"),
+                custom = new JRadioButton("Custom prefixes");
+        buttons.add(prefix);
+        buttons.add(custom);
+        ActionListener switchListener = e -> {
+            SwingUtilities.invokeLater(() -> {
+                grandChild.remove(2);
+                this.usingPrefixes = e.getSource() == prefix;
+                if (usingPrefixes) {
+                    grandChild.add(prefixes, 2);
+                } else {
+                    grandChild.add(this.custom, 2);
+                }
+                this.grandChild.updateUI();
+            });
+        };
+        prefix.addActionListener(switchListener);
+        custom.addActionListener(switchListener);
+        JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        container.add(prefix);
+        container.add(custom);
+        panel.add(container);
+        prefix.setSelected(true);
+
+    }
+
+    private void addIndexField(JPanel parent) {
+        indexField = new IntField(0);
+        prefixes.add(new JLabel("Start index"));
+        prefixes.add(indexField);
+
+        parent.add(prefixes);
 
     }
 
@@ -126,7 +178,11 @@ public class JDirectoryRenamer extends JFrame {
     private void addRenameButton(JPanel panel) {
         JButton renameButton = new JButton("Rename");
         renameButton.addActionListener(e -> {
-            renamer.rename(chosenDirectory, newNamesArea.getText(), indexField.getValue());
+            if (usingPrefixes)
+                renamer.rename(chosenDirectory, newNamesArea.getText(), indexField.getValue());
+            else {
+                renamer.rename(chosenDirectory, newNamesArea.getText(), series.getText(), seasonField.getValue());
+            }
             displayDirectory(chosenDirectory);
         });
         panel.add(renameButton);

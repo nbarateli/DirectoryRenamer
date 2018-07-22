@@ -1,6 +1,8 @@
 package control;
 
+import model.CustomDirectory;
 import model.Directory;
+import model.PrefixDirectory;
 import view.JDirectoryRenamer;
 
 import javax.swing.*;
@@ -13,13 +15,12 @@ import java.util.StringTokenizer;
 
 public class DirectoryRenamer {
     public static final String APP_NAME = "Directory Renamer";
-    private static final String EPISODE_SCRIPT =
-            "function episodes() {\n" +
-                    "    var res = \"\";\n" +
-                    "    for (i = 1; i < 15; i++)\n" +
-                    "        res += $($('.vevent')[i]).children()[2].childNodes[1].innerText + \"\\n\"\n" +
-                    "    return res;\n" +
-                    "}";
+    private static final String EPISODE_SCRIPT = "function episodes(n) {\n" +
+            "    var res = \"\";\n" +
+            "    for (i = 1; i <= n; i++)\n" +
+            "        res += $($('.vevent')[i]).children()[2].childNodes[1].innerText + \"\\n\"\n" +
+            "    return res;\n" +
+            "}";
 
     public static void main(String[] args) {
         try {
@@ -31,10 +32,17 @@ public class DirectoryRenamer {
         frame.setVisible(true);
     }
 
-    public void rename(File chosenDirectory, String text, int value) {
+    public void rename(File chosenDirectory, String text, int pindex) {
         String[] names = parseNames(text);
-        Directory directory = new Directory(chosenDirectory, names, value);
+        Directory directory = new PrefixDirectory(chosenDirectory, names, pindex);
         directory.rename();
+    }
+
+    public void rename(File chosenDirectory, String text, String series, int season) {
+        String[] names = parseNames(text);
+        Directory directory = new CustomDirectory(chosenDirectory, names, series, season);
+        directory.rename();
+
     }
 
     private String[] parseNames(String text) {
@@ -54,7 +62,7 @@ public class DirectoryRenamer {
             writer.write(EPISODE_SCRIPT);
             writer.flush();
             writer.close();
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
         return script;

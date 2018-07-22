@@ -30,7 +30,7 @@ public class CustomDirectory extends Directory {
         String directory = file.getParent();
         String extension = getFileExtension(oldName);
         String newName = String.format(
-                "%s\\%s.S%sE%s%s%s", directory, series.trim().replace(' ', '.'), leadZeroes(season), leadZeroes(episode), name.trim().replace(' ', '.'), extension);
+                "%s\\%s.S%sE%s.%s%s", directory, series.trim().replace(' ', '.'), leadZeroes(season), leadZeroes(episode), name.trim().replace(' ', '.'), extension);
         return file.renameTo(new File(newName));
     }
 }

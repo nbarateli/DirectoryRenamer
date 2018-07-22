@@ -17,8 +17,13 @@ public class DirectoryRenamer {
     public static final String APP_NAME = "Directory Renamer";
     private static final String EPISODE_SCRIPT = "function episodes(n) {\n" +
             "    var res = \"\";\n" +
-            "    for (i = 1; i <= n; i++)\n" +
-            "        res += $($('.vevent')[i]).children()[2].childNodes[1].innerText + \"\\n\"\n" +
+            "    for (i = 0; i <n; i++)\n" +
+            "        try {\n" +
+            "            res += $('.wikitable .vevent')[i].childNodes[2].innerText.replace(/\"/ig, \"\") + \"\\n\"\n" +
+            "        } catch (e) {\n" +
+            "            console.log(i)\n" +
+            "            console.log($('.wikitable .vevent')[i])\n" +
+            "        }\n" +
             "    return res;\n" +
             "}";
 

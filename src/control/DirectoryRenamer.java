@@ -15,15 +15,18 @@ import java.util.StringTokenizer;
 
 public class DirectoryRenamer {
     public static final String APP_NAME = "Directory Renamer";
-    private static final String EPISODE_SCRIPT = "function episodes(n) {\n" +
-            "    var res = \"\";\n" +
-            "    for (i = 0; i <n; i++)\n" +
+    private static final String EPISODE_SCRIPT = "\n" +
+            "function printEpisodes(table) {\n" +
+            "    var res = \"\"\n" +
+            "    for (i = 1; i < table.childNodes.length; i += 3) {\n" +
             "        try {\n" +
-            "            res += $('.wikitable .vevent')[i].childNodes[2].innerText.replace(/\"/ig, \"\") + \"\\n\"\n" +
+            "            res += table.childNodes[i].childNodes[2].innerText.replace(/\"/ig, \"\") + \"\\n\"\n" +
             "        } catch (e) {\n" +
-            "            console.log(i)\n" +
-            "            console.log($('.wikitable .vevent')[i])\n" +
+            "            console.error(i)\n" +
+            "            console.error(e)\n" +
+            "            console.log(table[i])\n" +
             "        }\n" +
+            "    }\n" +
             "    return res;\n" +
             "}";
 

@@ -26,7 +26,7 @@ public class PrefixDirectory extends Directory {
         String directory = file.getParent();
         String extension = getFileExtension(oldName);
         String newName = directory + "\\" + oldName.substring(0, pi) + " " + name + extension;
-        return Util.INSTANCE.fixAndRename(file, newName);
+        return file.renameTo(new File(newName));
     }
 
     /**

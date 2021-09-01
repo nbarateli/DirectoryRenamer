@@ -21,7 +21,8 @@ public class CustomDirectory extends Directory {
         File[] files = directory.listFiles();
         if (files == null) return;
         for (int i = 0; i < names.length && i < files.length; i++) {
-            renameFile(files[i], names[i], series, season, i + 1);
+            boolean success = renameFile(files[i], names[i], series, season, i + 1);
+            System.out.println((success ? "success " : "fail ") + files[i].getName());
         }
     }
 
@@ -31,6 +32,6 @@ public class CustomDirectory extends Directory {
         String extension = getFileExtension(oldName);
         String newName = String.format(
                 "%s\\%s.S%sE%s.%s%s", directory, series.trim().replace(' ', '.'), leadZeroes(season), leadZeroes(episode), name.trim().replace(' ', '.'), extension);
-        return Util.INSTANCE.fixAndRename(file, newName);
+        return file.renameTo(new File(newName));
     }
 }

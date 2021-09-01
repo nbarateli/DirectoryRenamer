@@ -3,6 +3,7 @@ package control;
 import model.CustomDirectory;
 import model.Directory;
 import model.PrefixDirectory;
+import model.Util;
 import view.JDirectoryRenamer;
 
 import javax.swing.*;
@@ -62,7 +63,7 @@ public class DirectoryRenamer {
 
         String[] names = new String[tokenizer.countTokens()];
         for (int i = 0; i < names.length && tokenizer.hasMoreTokens(); i++) {
-            names[i] = tokenizer.nextToken();
+            names[i] = Util.INSTANCE.fixString(tokenizer.nextToken());
         }
         return names;
     }

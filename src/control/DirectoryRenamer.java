@@ -18,9 +18,13 @@ public class DirectoryRenamer {
     private static final String EPISODE_SCRIPT = "\n" +
             "function printEpisodes(table) {\n" +
             "    var res = \"\"\n" +
-            "    for (i = 1; i < table.childNodes.length; i += 3) {\n" +
+            "    let children = table.getElementsByClassName(\"vevent\")\n" +
+            "    for (i = 0; i < children.length; i++) {\n" +
             "        try {\n" +
-            "            res += table.childNodes[i].childNodes[2].innerText.replace(/\"/ig, \"\") + \"\\n\"\n" +
+            "            // res += table.childNodes[i].childNodes[2].innerText.replace(/\"/ig, \"\") + \"\\n\"\n" +
+            "            let name = children[i].childNodes[2].innerText.replace(/\"/ig, \"\")\n" +
+            "            res += name + \"\\n\"\n" +
+            "            if (name.indexOf('‡') >= 0) res += name + \"\\n\"\n" +
             "        } catch (e) {\n" +
             "            console.error(i)\n" +
             "            console.error(e)\n" +
@@ -28,7 +32,7 @@ public class DirectoryRenamer {
             "        }\n" +
             "    }\n" +
             "    return res;\n" +
-            "}";
+            "}\n";
 
     public static void main(String[] args) {
         try {

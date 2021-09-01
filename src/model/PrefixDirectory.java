@@ -1,9 +1,6 @@
 package model;
 
 import java.io.File;
-import java.util.Arrays;
-
-import static model.Directory.getFileExtension;
 
 public class PrefixDirectory extends Directory {
     private int pIndex;
@@ -29,7 +26,7 @@ public class PrefixDirectory extends Directory {
         String directory = file.getParent();
         String extension = getFileExtension(oldName);
         String newName = directory + "\\" + oldName.substring(0, pi) + " " + name + extension;
-        return file.renameTo(new File(newName));
+        return Util.INSTANCE.fixAndRename(file, newName);
     }
 
     /**
